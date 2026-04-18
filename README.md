@@ -190,4 +190,4 @@ Why core package? Why modules folder in web app?
 As you can see the code is organized in a way that it's not just easy to navigate and understand it but also it's decoupled from the frameworks which makes it easier to refactor, change stack for example from trpc to simple rest or graphql etc. As api app is just a thin layer it's very easy to change it.
 Same in the web app most logic is not coupled to the TanStack Router or any other framework which makes it easier to change the stack.
 
-P.S. usually i don't make this big commits :D  
+P.S. usually i don't make this big commits :D license file is intentinally added to the repo usually i don't do that just for ease of testting
