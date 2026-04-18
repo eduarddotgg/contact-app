@@ -10,7 +10,9 @@
       "apps/api/src/**",
       "apps/web/src/**",
       "packages/core/src/**",
+      "packages/ui/src/**",
       "!node_modules",
+      "!apps/web/src/routeTree.gen.ts",
       "!dist",
       "!data",
       "!.turbo",
@@ -38,6 +40,11 @@
     "indentWidth": 2,
     "lineEnding": "lf",
     "lineWidth": 100
+  },
+  "css": {
+    "parser": {
+      "tailwindDirectives": true
+    }
   },
   "linter": {
     "enabled": true,

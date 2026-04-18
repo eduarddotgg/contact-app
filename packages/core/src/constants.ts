@@ -20,3 +20,6 @@ export type AppErrorCode = (typeof APP_ERROR_CODE)[keyof typeof APP_ERROR_CODE];
 
 // E.164: optional leading +, then 7-15 digits, first digit non-zero
 export const PHONE_REGEX = /^\+?[1-9]\d{6,14}$/;
+export const PHONE_EXAMPLE = "+36301234567";
+
+export const SHARED_SEED_PREFIX = "seed/";

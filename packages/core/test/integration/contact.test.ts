@@ -92,14 +92,84 @@ describe("Contact.list", () => {
     const second = (await Contact.create(makeInput()))!;
     ids.push(second.id);
 
-    const rows = await Contact.list();
+    const { items } = await Contact.list({ limit: 100 });
 
-    const firstIndex = rows.findIndex((r) => r.id === first.id);
-    const secondIndex = rows.findIndex((r) => r.id === second.id);
+    const firstIndex = items.findIndex((r) => r.id === first.id);
+    const secondIndex = items.findIndex((r) => r.id === second.id);
 
     expect(firstIndex).toBeGreaterThanOrEqual(0);
     expect(secondIndex).toBeGreaterThanOrEqual(0);
     expect(secondIndex).toBeLessThan(firstIndex);
+  });
+
+  it("truncates the result to the requested limit and returns a cursor", async () => {
+    for (let i = 0; i < 3; i++) {
+      const created = (await Contact.create(makeInput()))!;
+      ids.push(created.id);
+      await new Promise((resolve) => setTimeout(resolve, 5));
+    }
+
+    const page = await Contact.list({ limit: 2 });
+
+    expect(page.items).toHaveLength(2);
+    expect(page.nextCursor).not.toBeNull();
+    expect(page.nextCursor).toMatchObject({
+      createdAt: page.items[1]?.createdAt,
+      id: page.items[1]?.id,
+    });
+  });
+
+  it("chains pages via nextCursor without duplicates or skips", async () => {
+    const created: Array<{ id: string }> = [];
+    for (let i = 0; i < 5; i++) {
+      const row = (await Contact.create(makeInput()))!;
+      ids.push(row.id);
+      created.push(row);
+      await new Promise((resolve) => setTimeout(resolve, 5));
+    }
+
+    const seen = new Set<string>();
+    let cursor: { createdAt: string; id: string } | null = null;
+    let pagesFetched = 0;
+
+    do {
+      const page = await Contact.list({ limit: 2, cursor });
+      pagesFetched += 1;
+      for (const item of page.items) {
+        expect(seen.has(item.id)).toBe(false);
+        seen.add(item.id);
+      }
+      cursor = page.nextCursor;
+    } while (cursor && pagesFetched < 10);
+
+    for (const row of created) {
+      expect(seen.has(row.id)).toBe(true);
+    }
+  });
+
+  it("paginates rows that share createdAt using id as a tiebreaker", async () => {
+    const inserted = await db
+      .insert(contactTable)
+      .values([makeInput(), makeInput(), makeInput()])
+      .returning({ id: contactTable.id, createdAt: contactTable.createdAt });
+    ids.push(...inserted.map((row) => row.id));
+
+    const sharedCreatedAt = inserted[0]?.createdAt;
+    expect(sharedCreatedAt).toBeDefined();
+    expect(inserted.every((row) => row.createdAt === sharedCreatedAt)).toBe(true);
+
+    const insertedIds = new Set(inserted.map((row) => row.id));
+
+    const page1 = await Contact.list({ limit: 2 });
+    expect(page1.nextCursor).not.toBeNull();
+    const page2 = await Contact.list({ limit: 2, cursor: page1.nextCursor });
+
+    const seenFromInserted = [...page1.items, ...page2.items]
+      .map((r) => r.id)
+      .filter((id) => insertedIds.has(id));
+
+    expect(new Set(seenFromInserted).size).toBe(seenFromInserted.length);
+    expect(seenFromInserted).toHaveLength(3);
   });
 });
 
@@ -195,6 +265,17 @@ describe("Contact.update", () => {
     expect(S3.remove).toHaveBeenCalledWith(oldPhoto);
   });
 
+  it("does not remove shared seed images when photo changes", async () => {
+    const oldPhoto = "seed/adebayo.png";
+    const created = (await Contact.create(makeInput({ photo: oldPhoto })))!;
+    ids.push(created.id);
+
+    const newPhoto = `new-${crypto.randomUUID()}.png`;
+    await Contact.update({ id: created.id, photo: newPhoto });
+
+    expect(S3.remove).not.toHaveBeenCalledWith(oldPhoto);
+  });
+
   it("does not remove the S3 object when photo is unchanged", async () => {
     const created = (await Contact.create(makeInput()))!;
     ids.push(created.id);
@@ -234,5 +315,14 @@ describe("Contact.deleteById", () => {
     await Contact.deleteById(created.id);
 
     expect(S3.remove).toHaveBeenCalledWith(photo);
+  });
+
+  it("does not remove shared seed images on delete", async () => {
+    const photo = "seed/jake.png";
+    const created = (await Contact.create(makeInput({ photo })))!;
+
+    await Contact.deleteById(created.id);
+
+    expect(S3.remove).not.toHaveBeenCalledWith(photo);
   });
 });

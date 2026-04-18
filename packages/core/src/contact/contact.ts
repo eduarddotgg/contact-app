@@ -1,15 +1,26 @@
-import { eq } from "drizzle-orm";
+import { and, desc, eq, lt, or, sql } from "drizzle-orm";
 
-import { APP_ERROR_CODE } from "../constants";
+import { APP_ERROR_CODE, SHARED_SEED_PREFIX } from "../constants";
 import { db } from "../drizzle";
 import { AppError } from "../errors";
 import { logger } from "../logger";
 import { S3 } from "../s3/s3";
 import { isUniqueConstraintError } from "../utils";
 import { CONTACT_ERROR } from "./contact.errors";
-import { type CreateContactSchema, contactTable, type UpdateContactSchema } from "./contact.schema";
+import {
+  type CreateContactSchema,
+  contactTable,
+  type ListContactsInputSchema,
+  type UpdateContactSchema,
+} from "./contact.schema";
+
+const isSharedSeedPhoto = (key: string) => key.startsWith(SHARED_SEED_PREFIX);
 
 const safeRemoveObject = async (key: string) => {
+  if (isSharedSeedPhoto(key)) {
+    return;
+  }
+
   try {
     await S3.remove(key);
   } catch (error) {
@@ -29,10 +40,29 @@ export namespace Contact {
     return row;
   };
 
-  export const list = async () => {
-    return db.query.contactTable.findMany({
-      orderBy: (t, { desc }) => [desc(t.createdAt)],
+  export const list = async ({ cursor, limit }: ListContactsInputSchema) => {
+    const where = cursor
+      ? or(
+          lt(contactTable.createdAt, cursor.createdAt),
+          and(
+            eq(contactTable.createdAt, cursor.createdAt),
+            lt(contactTable.id, sql`${cursor.id}::uuid`),
+          ),
+        )
+      : undefined;
+
+    const rows = await db.query.contactTable.findMany({
+      where,
+      orderBy: [desc(contactTable.createdAt), desc(contactTable.id)],
+      limit: limit + 1,
     });
+
+    const hasNextPage = rows.length > limit;
+    const items = hasNextPage ? rows.slice(0, limit) : rows;
+    const last = items[items.length - 1];
+    const nextCursor = hasNextPage && last ? { createdAt: last.createdAt, id: last.id } : null;
+
+    return { items, nextCursor };
   };
 
   export const create = async (input: CreateContactSchema) => {

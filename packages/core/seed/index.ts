@@ -5,7 +5,7 @@ import { insertWithLogging } from "./helpers";
 import { uploadSeedImages } from "./upload-seed-images";
 
 const COUNTS = {
-  CONTACTS: 25,
+  CONTACTS: 1000,
 } as const;
 
 const seedData = async () => {
@@ -18,7 +18,7 @@ const seedData = async () => {
   }
 
   const contacts = Array.from({ length: COUNTS.CONTACTS }, (_, i) =>
-    generateContact(photoKeys[i % photoKeys.length]!),
+    generateContact(photoKeys[i % photoKeys.length]!, i),
   );
 
   await db.transaction(async (tx) => {

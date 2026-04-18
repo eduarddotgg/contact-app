@@ -8,6 +8,13 @@
       "when": 1776519390897,
       "tag": "0000_thankful_luke_cage",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1776528945169,
+      "tag": "0001_perpetual_purple_man",
+      "breakpoints": true
     }
   ]
 }

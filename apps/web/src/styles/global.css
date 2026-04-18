@@ -1,0 +1,122 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@source "../../../../packages/ui/src/**/*.{ts,tsx}";
+
+@font-face {
+  font-family: "Glysa";
+  src:
+    url("/fonts/glysa.woff2") format("woff2"),
+    url("/fonts/glysa.woff") format("woff");
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Lexend Deca";
+  src:
+    url("/fonts/lexenddeca-variablefont_wght.woff2") format("woff2"),
+    url("/fonts/lexenddeca-variablefont_wght.woff") format("woff");
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+@theme {
+  --font-serif: "Glysa", ui-serif, Georgia, serif;
+  --font-sans: "Lexend Deca", ui-sans-serif, system-ui, sans-serif;
+  --text-h1: 2rem;
+  --text-h1--line-height: 3rem;
+  --text-h2: 1.5rem;
+  --text-h2--line-height: 2.5rem;
+  --text-h3: 1rem;
+  --text-h3--line-height: 1.5rem;
+  --text-body: 0.875rem;
+  --text-body--line-height: 1.25rem;
+  --text-message: 0.75rem;
+  --text-message--line-height: 1rem;
+  --tracking-copy: 0.01em;
+
+  --grey-100: #141414;
+  --grey-90: #191919;
+  --grey-80: #1e1e1e;
+  --grey-70: #232323;
+  --grey-60: #282828;
+  --grey-50: #2d2d2d;
+  --grey-40: #323232;
+  --grey-30: #373737;
+  --grey-20: #3c3c3c;
+  --grey-10: #414141;
+
+  --color-grey-100: var(--grey-100);
+  --color-grey-90: var(--grey-90);
+  --color-grey-80: var(--grey-80);
+  --color-grey-70: var(--grey-70);
+  --color-grey-60: var(--grey-60);
+  --color-grey-50: var(--grey-50);
+  --color-grey-40: var(--grey-40);
+  --color-grey-30: var(--grey-30);
+  --color-grey-20: var(--grey-20);
+  --color-grey-10: var(--grey-10);
+
+  --radius: 0.75rem;
+  --color-background: var(--grey-80);
+  --color-foreground: rgb(255 255 255 / 1);
+  --color-muted: var(--grey-60);
+  --color-muted-foreground: rgb(255 255 255 / 0.56);
+  --color-primary: var(--grey-40);
+  --color-primary-foreground: rgb(255 255 255 / 1);
+  --color-secondary: var(--grey-70);
+  --color-secondary-foreground: rgb(255 255 255 / 1);
+  --color-accent: var(--grey-70);
+  --color-accent-foreground: rgb(255 255 255 / 1);
+  --color-destructive: #ef4444;
+  --color-destructive-foreground: #ffffff;
+  --color-border: var(--grey-60);
+  --color-input: var(--grey-50);
+  --color-ring: var(--grey-10);
+
+  --color-foreground-primary: rgb(255 255 255 / 1);
+  --color-foreground-secondary: rgb(255 255 255 / 0.56);
+  --color-foreground-muted: rgb(255 255 255 / 0.32);
+}
+
+:root {
+  --text-primary: rgb(255 255 255 / 1);
+  --text-secondary: rgb(255 255 255 / 0.56);
+  --text-muted: rgb(255 255 255 / 0.32);
+
+  --bg-base: var(--grey-100);
+  --header-bg: var(--grey-90);
+  --surface: var(--grey-90);
+  --surface-strong: var(--grey-80);
+  --chip-bg: var(--grey-40);
+  --chip-line: var(--grey-60);
+  --line: var(--grey-60);
+  --link-bg-hover: var(--grey-30);
+  --button-bg-active: var(--grey-20);
+
+  --sea-ink: var(--text-primary);
+  --sea-ink-soft: var(--text-secondary);
+  --foam: #ffffff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100dvh;
+}
+
+body {
+  background-color: var(--bg-base);
+  color: var(--sea-ink);
+  font-family: var(--font-sans);
+  margin: 0;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

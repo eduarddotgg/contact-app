@@ -5,8 +5,8 @@ import { nanoid } from "nanoid";
 
 import { ALLOWED_MIME, MAX_SIZE_BYTES } from "../constants";
 
-const isSafeKey = (name: string) =>
-  !name.includes("/") && !name.includes("\\") && !name.includes("..");
+const isSafeKey = (key: string) =>
+  !key.includes("..") && !key.includes("\\") && !key.startsWith("/");
 
 export const uploadsRoutes = new Hono();
 
@@ -35,15 +35,15 @@ uploadsRoutes.post("/uploads", async (c) => {
   return c.json({ filename });
 });
 
-uploadsRoutes.get("/uploads/:filename", async (c) => {
-  const filename = c.req.param("filename");
+uploadsRoutes.get("/uploads/:key{.+}", async (c) => {
+  const key = c.req.param("key");
 
-  if (!isSafeKey(filename)) {
-    return c.json({ error: "Invalid filename" }, 400);
+  if (!isSafeKey(key)) {
+    return c.json({ error: "Invalid key" }, 400);
   }
 
   try {
-    const { body, contentType } = await S3.get(filename);
+    const { body, contentType } = await S3.get(key);
     return new Response(body as unknown as ReadableStream, {
       headers: { "content-type": contentType },
     });
