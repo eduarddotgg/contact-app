@@ -1,0 +1,31 @@
+{
+  "name": "@contact-app/api",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist",
+    "dev": "pnpm build && concurrently --kill-others-on-fail --prefix-colors \"auto\" --prefix none \"pnpm build:watch\" \"pnpm start:watch\"",
+    "build": "tsup-node",
+    "build:watch": "chokidar --silent 'src/**/*.ts' '../../packages/core/src/**/*.ts' '../../.env' -c 'pnpm build'",
+    "start": "TZ=UTC node dist/index.mjs",
+    "start:watch": "TZ=UTC node --watch dist/index.mjs",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@contact-app/core": "workspace:*",
+    "@hono/node-server": "1.19.14",
+    "@hono/trpc-server": "0.4.2",
+    "@trpc/server": "11.16.0",
+    "hono": "4.12.14",
+    "nanoid": "5.1.9",
+    "zod": "4.3.6"
+  },
+  "devDependencies": {
+    "@types/node": "25.6.0",
+    "chokidar-cli": "3.0.0",
+    "concurrently": "9.2.1",
+    "tsup": "8.5.0",
+    "tsx": "4.21.0",
+    "typescript": "6.0.3"
+  }
+}

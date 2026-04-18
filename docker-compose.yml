@@ -1,0 +1,38 @@
+name: "contacts"
+
+services:
+  postgres:
+    image: postgres:14
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: "contacts"
+      POSTGRES_PASSWORD: ""
+      POSTGRES_HOST_AUTH_METHOD: trust
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  s3:
+    image: quay.io/minio/aistor/minio:latest
+    container_name: aistor
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - ./data/s3:/mnt/data
+      - ./docker/aistor/minio.license:/minio.license:ro
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    command: >
+      minio server /mnt/data
+      --license /minio.license
+      --console-address ":9001"
+
+volumes:
+  db_data:
