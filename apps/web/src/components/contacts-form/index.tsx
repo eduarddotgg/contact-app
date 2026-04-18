@@ -52,7 +52,7 @@ export const ContactsForm: FC<ContactsFormProps> = ({ isOpen, onOpenChange, data
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={onSubmit} className="flex flex-col gap-5">
+          <form onSubmit={onSubmit} className="flex flex-col gap-5" noValidate>
             <div className="flex items-center gap-4">
               <img
                 src={photoPreview ?? "/default-profile.png"}
