@@ -2,6 +2,8 @@
 
 A TypeScript monorepo for a contacts application, powered by [pnpm](https://pnpm.io/) workspaces and [Turborepo](https://turbo.build/).
 
+You can find some dev notes in the end of the file 😉
+
 ## Stack
 
 - **API** (`apps/api`) — [Hono](https://hono.dev/) + [tRPC](https://trpc.io/) server for contacts CRUD and photo uploads
@@ -190,4 +192,11 @@ Why core package? Why modules folder in web app?
 As you can see the code is organized in a way that it's not just easy to navigate and understand it but also it's decoupled from the frameworks which makes it easier to refactor, change stack for example from trpc to simple rest or graphql etc. As api app is just a thin layer it's very easy to change it.
 Same in the web app most logic is not coupled to the TanStack Router or any other framework which makes it easier to change the stack.
 
-P.S. usually i don't make this big commits :D license file is intentinally added to the repo usually i don't do that just for ease of testting
+As for the web components organization i'd say that it very depends on the project itself how they are organized in packages/ui i'd keep the design system and ui primitives that might be common across the apps. Apps itself should only have self contained componets that are only related to the current app.
+
+#### Regarding UI/UX solutions
+For the mobile view i tryied to degrade UX as less as possible so the main menu contains all the buttons in mobile and desktop views. Back button and theme switcher buttons in the mobile view are moved to the top because it keeps same UX. I could move back button next to "Contacts" heading and theme swithcer button to the primary menu but in this case i had to create or 2 rows or some dropdown menu and for example make add contacts button sticky but it would cover the 3 dots menu of the contact items and the drop down menu in the header wouldn't be as obvious. So i decided to keep header as is in mobile menu with slightly smaller title and move back and theme switcher buttons to the top, while header is sticky seems to be one more good solution.
+
+As for the contact list while there's no hover in the mobile view i decide to always show the drop down menu but for the smaller screens all the items had to be moved into the drop down menu as the action buttons were taking to much space and contact details (name and phone number) did'nt fit. In some cases we could add line swipe actions but that might be not so clear for the users.
+
+P.S. usually i don't make this big commits :D license file is intentionally added to the repo usually i don't do that just for ease of testting
